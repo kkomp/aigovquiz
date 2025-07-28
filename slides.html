@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>International AI Governance Presentation</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons for web pages -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        body {
+            font-family: "Inter", sans-serif;
+            background-color: #f0f4f8;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            overflow: hidden; /* Hide scrollbars for presentation mode */
+        }
+        .presentation-container {
+            position: relative;
+            width: 100%;
+            max-width: 1024px; /* Standard presentation width */
+            height: 100%;
+            max-height: 768px; /* Standard presentation height */
+            background-color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        .slide {
+            width: 100%;
+            height: 100%;
+            padding: 2.5rem 4rem 6rem 4rem; /* Increased bottom padding for nav buttons */
+            display: none; /* Hidden by default */
+            flex-direction: column;
+            justify-content: center;
+            align-items: flex-start;
+            color: #333;
+            line-height: 1.6;
+            box-sizing: border-box;
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out;
+            background-color: #fcfdff; /* Subtle off-white background */
+        }
+        .slide.active {
+            display: flex;
+            opacity: 1;
+        }
+
+        /* Specific slide styling */
+        .slide h2 {
+            font-size: 2.2rem; /* Slightly smaller for better fit with icons */
+            font-weight: 700;
+            color: #1a202c;
+            margin-bottom: 1.5rem;
+            text-align: left;
+            display: flex; /* For icon alignment */
+            align-items: center;
+            gap: 0.75rem;
+        }
+        .slide h3 {
+            font-size: 1.6rem; /* Slightly smaller for sub-headings */
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 0.8rem;
+            text-align: left;
+        }
+        .slide ul {
+            list-style: none; /* Remove default bullet */
+            padding-left: 0;
+            margin-left: 0;
+        }
+        .slide ul li {
+            position: relative;
+            padding-left: 2rem; /* More space for custom bullet */
+            margin-bottom: 0.8rem; /* Slightly more space between list items */
+            font-size: 1.1rem; /* Slightly smaller font for more text */
+            color: #4a5568;
+            transition: background-color 0.2s ease-in-out; /* Hover effect */
+            border-radius: 4px;
+            padding-top: 0.2rem;
+            padding-bottom: 0.2rem;
+        }
+        .slide ul li:hover {
+            background-color: #edf2f7; /* Light grey on hover */
+        }
+        .slide ul li::before {
+            content: '\2022'; /* Unicode for a solid circle bullet */
+            color: #4299e1; /* Blue color for bullet */
+            font-size: 1.6rem; /* Larger bullet */
+            position: absolute;
+            left: 0;
+            top: 0.05rem; /* Adjust vertical alignment */
+            line-height: 1; /* Ensure bullet doesn't affect line height much */
+        }
+
+        /* Title Slide specific styling */
+        .slide.title-slide {
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            background: linear-gradient(135deg, #3182ce 0%, #4299e1 100%);
+            color: white;
+        }
+        .slide.title-slide h1 {
+            font-size: 3.5rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+            color: white;
+        }
+        .slide.title-slide p {
+            font-size: 1.75rem;
+            font-weight: 300;
+            max-width: 80%;
+            margin: 0 auto;
+            color: #e2e8f0;
+        }
+
+        /* Navigation buttons */
+        .nav-buttons {
+            position: absolute;
+            bottom: 2rem; /* Adjusted position to avoid overlap */
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 1rem;
+            z-index: 10;
+        }
+        .nav-button {
+            background-color: #4299e1;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s ease-in-out, transform 0.1s ease-in-out;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .nav-button:hover {
+            background-color: #3182ce;
+            transform: translateY(-2px);
+        }
+        .nav-button:disabled {
+            background-color: #cbd5e0;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .slide-counter {
+            position: absolute;
+            bottom: 2rem; /* Adjusted position */
+            right: 2rem;
+            font-size: 1rem;
+            color: #666;
+            z-index: 10;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .presentation-container {
+                width: 100%;
+                height: 100vh; /* Full height on mobile */
+                max-width: none;
+                max-height: none;
+                border-radius: 0;
+                box-shadow: none;
+            }
+            .slide {
+                padding: 1.5rem 1.5rem 5rem 1.5rem; /* Adjusted padding for mobile */
+            }
+            .slide h2 {
+                font-size: 1.8rem;
+                margin-bottom: 1rem;
+            }
+            .slide h3 {
+                font-size: 1.4rem;
+                margin-bottom: 0.75rem;
+            }
+            .slide ul li {
+                font-size: 1rem;
+                margin-bottom: 0.5rem;
+                padding-left: 1.5rem; /* Adjust bullet space for smaller screens */
+            }
+            .slide ul li::before {
+                font-size: 1.2rem;
+                top: 0.15rem;
+            }
+            .slide.title-slide h1 {
+                font-size: 2.5rem;
+            }
+            .slide.title-slide p {
+                font-size: 1.2rem;
+            }
+            .nav-buttons {
+                bottom: 1rem;
+                gap: 0.75rem;
+            }
+            .nav-button {
+                padding: 0.6rem 1rem;
+                font-size: 0.9rem;
+            }
+            .slide-counter {
+                bottom: 1rem;
+                right: 1rem;
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="presentation-container">
+        <!-- Slide 1: Title Slide -->
+        <div class="slide title-slide active" id="slide-1">
+            <h1>International Governance of Artificial Intelligence</h1>
+            <p>Understanding Global Legal Frameworks, Risks, and Cooperation Models</p>
+        </div>
+
+        <!-- Slide 2: Global AI Governance: Why It Matters -->
+        <div class="slide" id="slide-2">
+            <h2><i data-lucide="globe"></i> Global AI Governance: Why It Matters</h2>
+            <ul>
+                <li>AI is a borderless technology with global impacts</li>
+                <li>Domestic laws alone can't address transboundary AI risks</li>
+                <li>Need for international rules to reduce legal fragmentation and regulatory arbitrage</li>
+                <li>Examples from nuclear and digital privacy governance show international regulation is possible</li>
+            </ul>
+        </div>
+
+        <!-- Slide 3: Challenges of Governing AI Internationally -->
+        <div class="slide" id="slide-3">
+            <h2><i data-lucide="alert-triangle"></i> Challenges of Governing AI Internationally</h2>
+            <ul>
+                <li>AI’s scale and opacity make harms hard to trace</li>
+                <li>Cross-border data and infrastructure weaken clear accountability</li>
+                <li>Governance power is concentrated in few states and companies</li>
+                <li>Uncertainty around surveillance, warfare, and misinformation uses fuels instability</li>
+            </ul>
+        </div>
+
+        <!-- Slide 4: Current Global Governance Landscape -->
+        <div class="slide" id="slide-4">
+            <h2><i data-lucide="layout-grid"></i> Current Global Governance Landscape</h2>
+            <ul>
+                <li>Fragmented efforts: OECD Principles, GPAI, G7, Council of Europe</li>
+                <li>Diverse national approaches (EU, US, China) cause legal asymmetry</li>
+                <li>New instruments like the Bletchley Declaration show some convergence</li>
+                <li>Global institutional coherence is urgently needed</li>
+            </ul>
+        </div>
+
+        <!-- Slide 5: International Legal Instruments: Treaties -->
+        <div class="slide" id="slide-5">
+            <h2><i data-lucide="scroll-text"></i> International Legal Instruments: Treaties</h2>
+            <ul>
+                <li>Treaties create binding obligations under international law</li>
+                <li>The Council of Europe AI Convention (2024) is the first binding AI treaty</li>
+                <li>Requires transparency, accountability, and human rights protections</li>
+                <li>States can make reservations, but not undermine the treaty’s purpose</li>
+            </ul>
+        </div>
+
+        <!-- Slide 6: Challenges in Treaty Negotiation and Implementation -->
+        <div class="slide" id="slide-6">
+            <h2><i data-lucide="gavel"></i> Challenges in Treaty Negotiation and Implementation</h2>
+            <ul>
+                <li>Divergent philosophies: precautionary (EU), innovation-led (US), state-directed (China)</li>
+                <li>Broad scope and limited enforceability make consensus difficult</li>
+                <li>Overbroad reservations can weaken treaty impact</li>
+                <li>Many states lack technical capacity to implement treaty obligations</li>
+            </ul>
+        </div>
+
+        <!-- Slide 7: Soft Law and Voluntary Frameworks -->
+        <div class="slide" id="slide-7">
+            <h2><i data-lucide="book-open"></i> Soft Law and Voluntary Frameworks</h2>
+            <ul>
+                <li>OECD AI Principles (2019) and UNESCO Ethics Recommendation (2021) are key soft law tools</li>
+                <li>Soft law helps shape domestic laws and build consensus</li>
+                <li>Bletchley Declaration and G7 Hiroshima Process promote voluntary commitments</li>
+                <li>Soft law is flexible but lacks enforceability</li>
+            </ul>
+        </div>
+
+        <!-- Slide 8: Influence and Limits of Soft Law -->
+        <div class="slide" id="slide-8">
+            <h2><i data-lucide="trending-up"></i> Influence and Limits of Soft Law</h2>
+            <ul>
+                <li>Shapes national laws and sets international expectations</li>
+                <li>Can lay groundwork for future treaties</li>
+                <li>Builds capacity and interoperability</li>
+                <li>Risks include inconsistent adoption and dominance by powerful states or firms</li>
+            </ul>
+        </div>
+
+        <!-- Slide 9: Institutional and Hybrid Governance Models -->
+        <div class="slide" id="slide-9">
+            <h2><i data-lucide="building-2"></i> Institutional and Hybrid Governance Models</h2>
+            <ul>
+                <li>GPAI supports research sharing, policy advice, and multi-stakeholder dialogue</li>
+                <li>AI Safety Institutes (UK, US) test and evaluate high-risk models</li>
+                <li>Transatlantic TTC aligns EU–US approaches to risk and transparency</li>
+                <li>Bilateral agreements promote joint evaluations and safety cooperation</li>
+            </ul>
+        </div>
+
+        <!-- Slide 10: Institutional Cooperation and Technical Alignment -->
+        <div class="slide" id="slide-10">
+            <h2><i data-lucide="share-2"></i> Institutional Cooperation and Technical Alignment</h2>
+            <ul>
+                <li>Shared protocols, benchmarks, and red teaming help standardize model evaluation</li>
+                <li>Safety institutes act as proto-regulators, but lack binding authority</li>
+                <li>Success depends on voluntary cooperation from states and companies</li>
+            </ul>
+        </div>
+
+        <!-- Slide 11: Multistakeholder Governance Models -->
+        <div class="slide" id="slide-11">
+            <h2><i data-lucide="users"></i> Multistakeholder Governance Models</h2>
+            <ul>
+                <li>Bodies like GPAI include states, firms, and civil society</li>
+                <li>Operate without legal mandates; legitimacy depends on transparency and inclusiveness</li>
+                <li>Some proposals call for formal authority under future treaty mechanisms</li>
+            </ul>
+        </div>
+
+        <!-- Slide 12: Proposal: Global AI Regulator (GAISA) -->
+        <div class="slide" id="slide-12">
+            <h2><i data-lucide="shield-check"></i> Proposal: Global AI Regulator (GAISA)</h2>
+            <ul>
+                <li>Modeled after the IAEA, proposed to oversee frontier AI globally</li>
+                <li>Tasks would include inspections, certifications, safety monitoring, and capacity-building</li>
+                <li>Backed by treaty commitments and enforcement mechanisms</li>
+            </ul>
+        </div>
+
+        <!-- Slide 13: Feasibility and Comparison with IAEA -->
+        <div class="slide" id="slide-13">
+            <h2><i data-lucide="scale"></i> Feasibility and Comparison with IAEA</h2>
+            <ul>
+                <li>IAEA succeeds through clear mandate, treaty authority, and Security Council backing</li>
+                <li>GAISA would face challenges with software-based systems and sovereignty concerns</li>
+                <li>Could begin as a technical body and evolve into a full regulator</li>
+            </ul>
+        </div>
+
+        <!-- Slide 14: Timeline of Key Developments in Global AI Governance -->
+        <div class="slide" id="slide-14">
+            <h2><i data-lucide="calendar"></i> Timeline of Key Developments in Global AI Governance</h2>
+            <ul>
+                <li>2017–2020: Early soft law (Asilomar, OECD, G20, GPAI)</li>
+                <li>2021: UNESCO Ethics Recommendation adopted by 193 states</li>
+                <li>2023: Bletchley Declaration, G7 Code of Conduct, AI Safety Institutes launched</li>
+                <li>2024: Council of Europe AI Convention adopted, Seoul AI Summit commitments</li>
+                <li>2025: Ongoing UN Digital Compact negotiations, export controls expand</li>
+            </ul>
+        </div>
+
+        <!-- Slide 15: Legal Doctrines and Principles in AI Governance -->
+        <div class="slide" id="slide-15">
+            <h2><i data-lucide="book"></i> Legal Doctrines and Principles in AI Governance</h2>
+            <ul>
+                <li>Sovereignty and extraterritoriality challenged by transboundary AI harms</li>
+                <li>Due diligence: states must prevent harm beyond their borders</li>
+                <li>Attribution: responsibility can extend to state-facilitated private actors</li>
+                <li>Precautionary principle supports early regulation in the face of risk</li>
+            </ul>
+        </div>
+
+        <!-- Slide 16: Role of Soft Law, Lex Specialis, and Legal Pluralism -->
+        <div class="slide" id="slide-16">
+            <h2><i data-lucide="layers"></i> Role of Soft Law, Lex Specialis, and Legal Pluralism</h2>
+            <ul>
+                <li>Soft law shapes practice and may evolve into customary international law</li>
+                <li>Lex specialis gives precedence to AI-specific norms in legal conflicts</li>
+                <li>Legal pluralism reflects overlapping laws, treaties, and standards in global governance</li>
+            </ul>
+        </div>
+
+        <!-- Slide 17: Human Rights and AI -->
+        <div class="slide" id="slide-17">
+            <h2><i data-lucide="user-check"></i> Human Rights and AI</h2>
+            <ul>
+                <li>Right to privacy threatened by mass biometric and behavioral surveillance</li>
+                <li>Right to equality violated by biased or discriminatory algorithms</li>
+                <li>Right to due process undermined by opaque and unaccountable automated decisions</li>
+            </ul>
+        </div>
+
+        <!-- Slide 18: Extraterritorial Human Rights Obligations -->
+        <div class="slide" id="slide-18">
+            <h2><i data-lucide="map-pin"></i> Extraterritorial Human Rights Obligations</h2>
+            <ul>
+                <li>States may be liable for AI harms abroad if they exert effective control</li>
+                <li>UN Guiding Principles expect states to regulate corporate human rights impacts</li>
+                <li>Exporting harmful AI systems can trigger state responsibility</li>
+            </ul>
+        </div>
+
+        <!-- Slide 19: Trade and Investment Law and AI -->
+        <div class="slide" id="slide-19">
+            <h2><i data-lucide="handshake"></i> Trade and Investment Law and AI</h2>
+            <ul>
+                <li>WTO rules govern cross-border AI services, IP, and standards</li>
+                <li>AI-related regulations may be challenged under GATS or TRIPS</li>
+                <li>General exceptions allow regulation for health, public morals, or safety</li>
+            </ul>
+        </div>
+
+        <!-- Slide 20: Export Controls and National Security -->
+        <div class="slide" id="slide-20">
+            <h2><i data-lucide="lock"></i> Export Controls and National Security</h2>
+            <ul>
+                <li>US and others impose export controls on AI chips and models</li>
+                <li>National security exceptions to trade rules are sensitive and rarely litigated</li>
+                <li>Dual-use debates intensify as AI tools gain strategic significance</li>
+            </ul>
+        </div>
+
+        <!-- Slide 21: Intellectual Property Challenges -->
+        <div class="slide" id="slide-21">
+            <h2><i data-lucide="lightbulb"></i> Intellectual Property Challenges</h2>
+            <ul>
+                <li>AI-generated content may not qualify for copyright</li>
+                <li>Laws differ on whether human-guided outputs can be protected</li>
+                <li>AI training raises legal issues over scraping copyrighted content</li>
+            </ul>
+        </div>
+
+        <!-- Slide 22: Patent and Trade Secret Protections -->
+        <div class="slide" id="slide-22">
+            <h2><i data-lucide="key"></i> Patent and Trade Secret Protections</h2>
+            <ul>
+                <li>Patent laws generally exclude non-human inventors</li>
+                <li>Trade secrets often protect model architectures and training methods</li>
+                <li>Tension between transparency needs and IP rights persists</li>
+            </ul>
+        </div>
+
+        <!-- Slide 23: International Humanitarian Law and Autonomous Weapons -->
+        <div class="slide" id="slide-23">
+            <h2><i data-lucide="swords"></i> International Humanitarian Law and Autonomous Weapons</h2>
+            <ul>
+                <li>AI-enabled weapons must respect distinction and proportionality</li>
+                <li>State and individual responsibility apply for IHL violations</li>
+                <li>Debate ongoing on banning or regulating lethal autonomous weapons</li>
+            </ul>
+        </div>
+
+        <!-- Slide 24: AI and Environmental Law -->
+        <div class="slide" id="slide-24">
+            <h2><i data-lucide="leaf"></i> AI and Environmental Law</h2>
+            <ul>
+                <li>Large models require high compute, energy, and water use</li>
+                <li>Environmental impacts often fall on low-regulation states</li>
+                <li>No binding treaty yet mandates environmental reviews for AI</li>
+            </ul>
+        </div>
+
+        <!-- Slide 25: Data Protection and Privacy -->
+        <div class="slide" id="slide-25">
+            <h2><i data-lucide="shield"></i> Data Protection and Privacy</h2>
+            <ul>
+                <li>GDPR regulates AI data use with extraterritorial scope</li>
+                <li>Automated decisions must be explainable, contestable</li>
+                <li>Convention 108+ offers global data protection baseline</li>
+            </ul>
+        </div>
+
+        <!-- Slide 26: AI-Specific Privacy Risks -->
+        <div class="slide" id="slide-26">
+            <h2><i data-lucide="eye-off"></i> AI-Specific Privacy Risks</h2>
+            <ul>
+                <li>AI can infer sensitive data from non-sensitive inputs</li>
+                <li>Consent, transparency, and contextual integrity are undermined</li>
+                <li>Regulatory enforcement is uneven across jurisdictions</li>
+            </ul>
+        </div>
+
+        <!-- Slide 27: Criminal and Liability Law -->
+        <div class="slide" id="slide-27">
+            <h2><i data-lucide="justice"></i> Criminal and Liability Law</h2>
+            <ul>
+                <li>AI harms raise attribution and causation challenges</li>
+                <li>Civil liability (e.g., tort, negligence) more common than criminal</li>
+                <li>EU exploring AI-specific liability directives and presumptions</li>
+            </ul>
+        </div>
+
+        <!-- Slide 28: Cybersecurity and Dual-Use Issues -->
+        <div class="slide" id="slide-28">
+            <h2><i data-lucide="shield-alert"></i> Cybersecurity and Dual-Use Issues</h2>
+            <ul>
+                <li>AI can enable cyber attacks: phishing, malware, disinformation</li>
+                <li>Attribution to developers is difficult without clear intent</li>
+                <li>Export controls and cyber norms aim to address dual-use risks</li>
+            </ul>
+        </div>
+
+        <!-- Slide 29: Competition Law and AI Market Power -->
+        <div class="slide" id="slide-29">
+            <h2><i data-lucide="trending-down"></i> Competition Law and AI Market Power</h2>
+            <ul>
+                <li>Dominant AI firms control data, compute, and distribution</li>
+                <li>Practices like bundling and self-preferencing raise antitrust concerns</li>
+                <li>Essential facilities doctrine may apply to foundational models</li>
+            </ul>
+        </div>
+
+        <!-- Slide 30: Antitrust Enforcement Trends -->
+        <div class="slide" id="slide-30">
+            <h2><i data-lucide="bar-chart-2"></i> Antitrust Enforcement Trends</h2>
+            <ul>
+                <li>UK, US, and EU examining AI’s effect on competition</li>
+                <li>Concerns about early mover advantages and platform lock-in</li>
+                <li>No binding global antitrust regime; coordination remains weak</li>
+            </ul>
+        </div>
+
+        <!-- Slide 31: AI in Space and Telecom Law -->
+        <div class="slide" id="slide-31">
+            <h2><i data-lucide="satellite"></i> AI in Space and Telecom Law</h2>
+            <ul>
+                <li>Outer Space Treaty holds states responsible for AI-enabled satellites</li>
+                <li>AI in orbit may pose risks in surveillance, targeting, and interference</li>
+                <li>Liability Convention applies to AI-caused damage in space</li>
+            </ul>
+        </div>
+
+        <!-- Slide 32: Dispute Resolution and Enforcement -->
+        <div class="slide" id="slide-32">
+            <h2><i data-lucide="message-square"></i> Dispute Resolution and Enforcement</h2>
+            <ul>
+                <li>ISDS allows firms to sue states for discriminatory AI regulations</li>
+                <li>WTO handles disputes over trade-restrictive AI measures</li>
+                <li>ICJ may hear state-to-state cases involving AI, with consent</li>
+            </ul>
+        </div>
+
+        <!-- Slide 33: Domestic Enforcement of International AI Norms -->
+        <div class="slide" id="slide-33">
+            <h2><i data-lucide="home"></i> Domestic Enforcement of International AI Norms</h2>
+            <ul>
+                <li>Soft law must be implemented via national legislation</li>
+                <li>National regulators enforce AI rules through audits and fines</li>
+                <li>Courts may use international norms to interpret domestic laws</li>
+            </ul>
+        </div>
+
+        <!-- Slide 34: Actors in International AI Governance -->
+        <div class="slide" id="slide-34">
+            <h2><i data-lucide="users-2"></i> Actors in International AI Governance</h2>
+            <ul>
+                <li>States and regions (e.g., EU) set standards and negotiate treaties</li>
+                <li>International bodies (OECD, UNESCO, ITU) coordinate and guide</li>
+                <li>Private firms and civil society influence policy and fill governance gaps</li>
+            </ul>
+        </div>
+
+        <!-- NEW SLIDES START HERE -->
+        <!-- Slide 35: The Role of Lawyers in AI Governance: Legislative and International Design -->
+        <div class="slide" id="slide-35">
+            <h2><i data-lucide="file-text"></i> The Role of Lawyers: Legislative & International Design</h2>
+            <ul>
+                <li>Draft AI-specific legislation (licensing rules, audit mandates)</li>
+                <li>Advise lawmakers on constitutional, trade, and human rights implications of AI policy</li>
+                <li>Help design oversight systems (regulatory agencies, public procurement rules)</li>
+                <li>Negotiate AI treaties and digital trade chapters at international level</li>
+                <li>Ensure treaty language balances sovereignty with cross-border accountability</li>
+                <li>Advise on opt-outs, reservations, and treaty compliance with existing obligations</li>
+            </ul>
+        </div>
+
+        <!-- Slide 36: The Role of Lawyers: Litigation and Corporate Practice -->
+        <div class="slide" id="slide-36">
+            <h2><i data-lucide="briefcase"></i> The Role of Lawyers: Litigation & Corporate Practice</h2>
+            <ul>
+                <li>Represent clients in litigation involving AI-related harms, bias, or misuses</li>
+                <li>Handle civil, administrative, human rights, and investor-state disputes involving AI</li>
+                <li>Deal with explainability, causation, and evidence challenges in black-box systems</li>
+                <li>Design internal AI governance programs and manage compliance in corporate settings</li>
+                <li>Draft terms of use, data protection strategies, and handle dual-use risks</li>
+                <li>Anticipate liability exposure under cybersecurity, IP, and product safety laws</li>
+            </ul>
+        </div>
+
+        <!-- Slide 37: The Role of Lawyers: Ethics, Education, and Institutions -->
+        <div class="slide" id="slide-37">
+            <h2><i data-lucide="graduation-cap"></i> The Role of Lawyers: Ethics, Education & Institutions</h2>
+            <ul>
+                <li>Contribute to development of soft law and technical standards (ISO, IEEE, OECD)</li>
+                <li>Translate ethical principles into enforceable legal practices</li>
+                <li>Educate future lawyers on AI law, ethics, and data governance</li>
+                <li>Publish scholarship and support civil society via hearings and consultations</li>
+                <li>Help build institutional infrastructure (AI oversight bodies, redress platforms)</li>
+                <li>Draft bylaws and governance rules for new AI-specific agencies and mechanisms</li>
+            </ul>
+        </div>
+        <!-- NEW SLIDES END HERE -->
+
+        <!-- Slide 38: Global Gaps and Future Directions (formerly slide 37) -->
+        <div class="slide" id="slide-38">
+            <h2><i data-lucide="gap"></i> Global Gaps and Future Directions</h2>
+            <ul>
+                <li>Global South lacks voice and control in AI rule-making</li>
+                <li>Digital sovereignty and data justice require inclusive governance</li>
+                <li>Labor rights, emergency AI use, and environmental harm need attention</li>
+            </ul>
+        </div>
+
+        <!-- Slide 39: Future Governance Needs (formerly slide 38) -->
+        <div class="slide" id="slide-39">
+            <h2><i data-lucide="light-bulb"></i> Future Governance Needs</h2>
+            <ul>
+                <li>Public-interest institutions, open infrastructure, and shared resources</li>
+                <li>Environmental impact standards for large models</li>
+                <li>Legal mechanisms for community data rights and equitable participation</li>
+            </ul>
+        </div>
+
+        <!-- Slide 40: Conclusion: Synthesis and Outlook (formerly slide 39) -->
+        <div class="slide" id="slide-40">
+            <h2><i data-lucide="check-circle"></i> Conclusion: Synthesis and Outlook</h2>
+            <ul>
+                <li>AI governance is evolving through treaties, soft law, and institutions</li>
+                <li>Fragmentation and inequality persist, requiring stronger cooperation</li>
+                <li>Legal pluralism, interdisciplinary literacy, and global solidarity are key</li>
+            </ul>
+        </div>
+
+
+        <!-- Navigation Buttons -->
+        <div class="nav-buttons">
+            <button id="prevBtn" class="nav-button" disabled>
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-left"><path d="m15 18-6-6 6-6"/></svg>
+                Previous
+            </button>
+            <button id="nextBtn" class="nav-button">
+                Next
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-right"><path d="m9 18 6-6-6-6"/></svg>
+            </button>
+        </div>
+
+        <div class="slide-counter" id="slideCounter"></div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const slides = document.querySelectorAll('.slide');
+            const prevBtn = document.getElementById('prevBtn');
+            const nextBtn = document.getElementById('nextBtn');
+            const slideCounter = document.getElementById('slideCounter');
+            let currentSlideIndex = 0;
+
+            function showSlide(index) {
+                slides.forEach((slide, i) => {
+                    if (i === index) {
+                        slide.classList.add('active');
+                    } else {
+                        slide.classList.remove('active');
+                    }
+                });
+                updateNavigationButtons();
+                updateSlideCounter();
+            }
+
+            function updateNavigationButtons() {
+                prevBtn.disabled = currentSlideIndex === 0;
+                nextBtn.disabled = currentSlideIndex === slides.length - 1;
+            }
+
+            function updateSlideCounter() {
+                slideCounter.textContent = `Slide ${currentSlideIndex + 1} of ${slides.length}`;
+            }
+
+            prevBtn.addEventListener('click', () => {
+                if (currentSlideIndex > 0) {
+                    currentSlideIndex--;
+                    showSlide(currentSlideIndex);
+                }
+            });
+
+            nextBtn.addEventListener('click', () => {
+                if (currentSlideIndex < slides.length - 1) {
+                    currentSlideIndex++;
+                    showSlide(currentSlideIndex);
+                }
+            });
+
+            // Keyboard navigation
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'ArrowRight') {
+                    nextBtn.click();
+                } else if (e.key === 'ArrowLeft') {
+                    prevBtn.click();
+                }
+            });
+
+            // Initial display
+            showSlide(currentSlideIndex);
+        });
+    </script>
+</body>
+</html>
