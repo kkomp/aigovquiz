@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>International AI Governance Timeline</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons for web pages -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        body {
+            font-family: "Inter", sans-serif;
+            background-color: #f0f4f8;
+            color: #333;
+            line-height: 1.6;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+            padding: 2rem 1rem;
+        }
+        .container {
+            max-width: 1100px; /* Increased max-width for more content space */
+            width: 100%;
+            background-color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            padding: 2rem;
+            overflow-y: auto; /* Allow vertical scrolling if content overflows */
+        }
+        h1 {
+            color: #1a202c;
+            font-size: 2.5rem;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 2.5rem;
+        }
+        .timeline-controls {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        .timeline-control-button {
+            background-color: #4299e1;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s ease-in-out, transform 0.1s ease-in-out;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .timeline-control-button:hover {
+            background-color: #3182ce;
+            transform: translateY(-2px);
+        }
+        .timeline-wrapper {
+            position: relative;
+            padding-top: 10px;
+            padding-bottom: 10px;
+        }
+        .timeline-line {
+            position: absolute;
+            top: 0;
+            left: 50%; /* Center the vertical line */
+            width: 4px;
+            height: 100%;
+            background: #cbd5e0;
+            border-radius: 2px;
+            transform: translateX(-50%); /* Adjust for line width */
+        }
+        .timeline-events {
+            display: flex;
+            flex-direction: column; /* Stack items vertically */
+            position: relative;
+            z-index: 1; /* Ensure events are above the line */
+        }
+        .timeline-item {
+            display: flex;
+            align-items: flex-start; /* Align content to the top */
+            margin-bottom: 2.5rem; /* Space between items */
+            position: relative;
+            width: 100%; /* Take full width for positioning */
+            cursor: pointer;
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+        }
+        .timeline-item:hover {
+            transform: translateY(-3px); /* Subtle lift on hover */
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08); /* Subtle shadow on hover */
+        }
+
+        /* Common styles for halves */
+        .timeline-left-half,
+        .timeline-right-half {
+            width: 50%;
+            display: flex;
+            align-items: flex-start;
+            position: relative;
+        }
+
+        /* Odd items: Year on left, Content on right */
+        .timeline-item:nth-child(odd) {
+            flex-direction: row; /* Year then content */
+            justify-content: flex-start; /* Align to start of item */
+        }
+        .timeline-item:nth-child(odd) .timeline-left-half {
+            justify-content: flex-end; /* Push year to right of its half */
+            padding-right: 25px; /* Space between year and line */
+        }
+        .timeline-item:nth-child(odd) .timeline-right-half {
+            justify-content: flex-start; /* Content starts from left of its half */
+            padding-left: 25px; /* Space between line and content */
+        }
+
+        /* Even items: Year on right, Content on left */
+        .timeline-item:nth-child(even) {
+            flex-direction: row-reverse; /* Content then year */
+            justify-content: flex-end; /* Align to end of item */
+        }
+        .timeline-item:nth-child(even) .timeline-left-half { /* This is now the right half visually (contains year) */
+            justify-content: flex-start; /* Push year to left of its half */
+            padding-left: 25px; /* Space between line and year */
+            padding-right: 0; /* Reset */
+        }
+        .timeline-item:nth-child(even) .timeline-right-half { /* This is now the left half visually (contains content) */
+            justify-content: flex-end; /* Content starts from right of its half */
+            padding-right: 25px; /* Space between content and line */
+            padding-left: 0; /* Reset */
+        }
+
+        .timeline-year {
+            font-weight: 700;
+            font-size: 1.3rem;
+            color: #2c5282;
+            background-color: #ffffff;
+            padding: 0.25rem 0.5rem;
+            border-radius: 6px;
+            border: 2px solid #3182ce;
+            z-index: 2; /* Ensure year is above line */
+            cursor: pointer;
+            transition: background-color 0.2s ease-in-out, border-color 0.2s ease-in-out;
+            white-space: nowrap;
+            position: relative; /* Make it relative to its flex container */
+            top: auto;
+            left: auto;
+            transform: none;
+        }
+        .timeline-year:hover {
+            background-color: #e6fffa;
+            border-color: #2b6cb0;
+        }
+
+        .timeline-content {
+            background-color: #f7fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 1.25rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05); /* Enhanced subtle shadow */
+            overflow: hidden;
+            max-height: 0; /* Initially hidden */
+            opacity: 0;
+            transition: max-height 0.7s ease-out, opacity 0.7s ease-out, padding 0.7s ease-out, box-shadow 0.2s ease-in-out;
+            width: 100%; /* Fill its half */
+        }
+        .timeline-content.expanded {
+            max-height: 600px; /* Increased height for content to prevent cutoff */
+            opacity: 1;
+            padding: 1.25rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* Slightly more prominent shadow when expanded */
+        }
+        .timeline-content h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .timeline-content p {
+            font-size: 0.95rem;
+            color: #4a5568;
+            margin-bottom: 0.5rem;
+        }
+        .timeline-content ul {
+            list-style: disc;
+            margin-left: 1.25rem;
+            padding-left: 0;
+            font-size: 0.95rem;
+            color: #4a5568;
+        }
+        .timeline-content ul li {
+            margin-bottom: 0.25rem;
+        }
+
+        /* Responsive adjustments for smaller screens */
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+            .timeline-wrapper {
+                padding-left: 0; /* No left padding needed as line is fixed left */
+            }
+            .timeline-line {
+                left: 15px; /* Move line to the left edge for mobile */
+                transform: translateX(0); /* No horizontal transform */
+            }
+            /* All items stack vertically on the right for mobile */
+            .timeline-item,
+            .timeline-item:nth-child(even) {
+                flex-direction: row; /* Ensure row direction for consistent left-side line */
+                justify-content: flex-start; /* Align content to the right of the line */
+            }
+            .timeline-left-half,
+            .timeline-right-half,
+            .timeline-item:nth-child(even) .timeline-left-half,
+            .timeline-item:nth-child(even) .timeline-right-half {
+                width: 100%; /* Halves take full width */
+                padding-left: 0;
+                padding-right: 0;
+                justify-content: flex-start; /* Reset justify for year */
+            }
+            .timeline-year {
+                position: absolute; /* Position year absolutely relative to item */
+                left: 15px; /* Align year with the line */
+                margin-left: 20px; /* Space from the line */
+                top: 0; /* Align with content start */
+                transform: translateX(0); /* No horizontal transform */
+                font-size: 1.1rem;
+            }
+            .timeline-content {
+                width: calc(100% - 55px); /* Adjust width to fit */
+                margin-left: 55px; /* Space from year/line */
+                padding: 1rem;
+            }
+            .timeline-content.expanded {
+                max-height: 600px; /* More height for mobile if content is long */
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>International AI Governance Timeline</h1>
+
+        <div class="timeline-controls">
+            <button class="timeline-control-button" id="openAllBtnTop">
+                <i data-lucide="maximize-2" class="w-5 h-5"></i> Open All
+            </button>
+            <button class="timeline-control-button" id="closeAllBtnTop">
+                <i data-lucide="minimize-2" class="w-5 h-5"></i> Close All
+            </button>
+        </div>
+
+        <div class="timeline-wrapper">
+            <div class="timeline-line"></div>
+            <div class="timeline-events">
+                <!-- Timeline Item 1 (Odd: Year Left, Content Right) -->
+                <div class="timeline-item" data-year="2017">
+                    <div class="timeline-left-half">
+                        <div class="timeline-year">2017</div>
+                    </div>
+                    <div class="timeline-right-half">
+                        <div class="timeline-content">
+                            <h3><i data-lucide="book" class="w-5 h-5 text-blue-600"></i> Asilomar AI Principles</h3>
+                            <p>Published by the Future of Life Institute. While non-binding, they serve as one of the earliest multistakeholder ethical frameworks for AI.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Timeline Item 2 (Even: Year Right, Content Left) -->
+                <div class="timeline-item" data-year="2018">
+                    <div class="timeline-left-half">
+                        <div class="timeline-content">
+                            <h3><i data-lucide="users" class="w-5 h-5 text-blue-600"></i> EU High-Level Expert Group on AI formed</h3>
+                            <p>Begins drafting ethical guidelines and proposing policy foundations for what would become the EU AI Act.</p>
+                        </div>
+                    </div>
+                    <div class="timeline-right-half">
+                        <div class="timeline-year">2018</div>
+                    </div>
+                </div>
+
+                <!-- Timeline Item 3 (Odd: Year Left, Content Right) -->
+                <div class="timeline-item" data-year="2019">
+                    <div class="timeline-left-half">
+                        <div class="timeline-year">2019</div>
+                    </div>
+                    <div class="timeline-right-half">
+                        <div class="timeline-content">
+                            <h3><i data-lucide="scale" class="w-5 h-5 text-blue-600"></i> Key Developments</h3>
+                            <ul>
+                                <li>OECD Council Recommendation on Artificial Intelligence adopted by 42 countries. It becomes the first intergovernmental standard-setting instrument on AI.</li>
+                                <li>G20 adopts the OECD AI Principles, signaling early normative convergence at the highest political level.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Timeline Item 4 (Even: Year Right, Content Left) -->
+                <div class="timeline-item" data-year="2020">
+                    <div class="timeline-left-half">
+                        <div class="timeline-content">
+                            <h3><i data-lucide="globe" class="w-5 h-5 text-blue-600"></i> Key Developments</h3>
+                            <ul>
+                                <li>Global Partnership on AI (GPAI) launched with the OECD as secretariat. It operationalizes the OECD Principles through working groups on responsible AI, data governance, and innovation.</li>
+                                <li>UN Secretary-General’s Roadmap for Digital Cooperation recommends beginning discussions on global AI governance mechanisms.</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="timeline-right-half">
+                        <div class="timeline-year">2020</div>
+                    </div>
+                </div>
+
+                <!-- Timeline Item 5 (Odd: Year Left, Content Right) -->
+                <div class="timeline-item" data-year="2021">
+                    <div class="timeline-left-half">
+                        <div class="timeline-year">2021</div>
+                    </div>
+                    <div class="timeline-right-half">
+                        <div class="timeline-content">
+                            <h3><i data-lucide="scroll-text" class="w-5 h-5 text-blue-600"></i> Key Developments</h3>
+                            <ul>
+                                <li>UNESCO adopts its Recommendation on the Ethics of Artificial Intelligence, unanimously endorsed by 193 member states. This becomes the most widely supported international soft-law instrument on AI.</li>
+                                <li>Council of Europe’s Ad Hoc Committee on Artificial Intelligence (CAHAI) releases its feasibility study for a binding legal instrument.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Timeline Item 6 (Even: Year Right, Content Left) -->
+                <div class="timeline-item" data-year="2022">
+                    <div class="timeline-left-half">
+                        <div class="timeline-content">
+                            <h3><i data-lucide="landmark" class="w-5 h-5 text-blue-600"></i> Key Developments</h3>
+                            <ul>
+                                <li>EU reaches political agreement on core components of the AI Act, the world’s first attempt at a horizontal, risk-based AI regulation with extraterritorial scope.</li>
+                                <li>United States Blueprint for an AI Bill of Rights published by the White House OSTP. While not binding, it outlines federal priorities and sectoral guidelines.</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="timeline-right-half">
+                        <div class="timeline-year">2022</div>
+                    </div>
+                </div>
+
+                <!-- Timeline Item 7 (Odd: Year Left, Content Right) -->
+                <div class="timeline-item" data-year="2023">
+                    <div class="timeline-left-half">
+                        <div class="timeline-year">2023</div>
+                    </div>
+                    <div class="timeline-right-half">
+                        <div class="timeline-content">
+                            <h3><i data-lucide="shield-check" class="w-5 h-5 text-blue-600"></i> Key Developments</h3>
+                            <ul>
+                                <li>G7 Hiroshima AI Process launched to develop shared policy frameworks and an International Code of Conduct for Advanced AI.</li>
+                                <li>Bletchley Declaration on AI Safety signed by 28 countries, including China and the US, during the UK-hosted AI Safety Summit. It recognizes the need for international collaboration on frontier AI risks.</li>
+                                <li>US Department of Commerce initiates export control measures on AI chips and computing infrastructure, citing national security and proliferation risks.</li>
+                                <li>AI Safety Institutes launched in the UK and US, formalizing technical collaboration on model evaluation and red-teaming.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Timeline Item 8 (Even: Year Right, Content Left) -->
+                <div class="timeline-item" data-year="2024">
+                    <div class="timeline-left-half">
+                        <div class="timeline-content">
+                            <h3><i data-lucide="gavel" class="w-5 h-5 text-blue-600"></i> Key Developments</h3>
+                            <ul>
+                                <li>Council of Europe adopts the Framework Convention on AI, Human Rights, Democracy and the Rule of Law, the first binding multilateral AI treaty.</li>
+                                <li>GPAI expands to 29 members and launches model evaluation task force.</li>
+                                <li>Seoul AI Safety Summit issues further commitments on information sharing and technical evaluations.</li>
+                                <li>UN Secretary-General proposes creation of a High-Level Advisory Body on AI, setting groundwork for institutional coordination under the UN umbrella.</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="timeline-right-half">
+                        <div class="timeline-year">2024</div>
+                    </div>
+                </div>
+
+                <!-- Timeline Item 9 (Odd: Year Left, Content Right) -->
+                <div class="timeline-item" data-year="2025">
+                    <div class="timeline-left-half">
+                        <div class="timeline-year">2025</div>
+                    </div>
+                    <div class="timeline-right-half">
+                        <div class="timeline-content">
+                            <h3><i data-lucide="trending-up" class="w-5 h-5 text-blue-600"></i> Expected Developments</h3>
+                            <ul>
+                                <li>Ongoing negotiations for UN Global Digital Compact, which includes AI governance as a pillar, are expected to produce new institutional proposals.</li>
+                                <li>Export control regimes, including Wassenaar Arrangement discussions, begin to formally address general-purpose AI technologies.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="timeline-controls mt-8">
+            <button class="timeline-control-button" id="openAllBtnBottom">
+                <i data-lucide="maximize-2" class="w-5 h-5"></i> Open All
+            </button>
+            <button class="timeline-control-button" id="closeAllBtnBottom">
+                <i data-lucide="minimize-2" class="w-5 h-5"></i> Close All
+            </button>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const timelineItems = document.querySelectorAll('.timeline-item');
+            const openAllBtnTop = document.getElementById('openAllBtnTop');
+            const closeAllBtnTop = document.getElementById('closeAllBtnTop');
+            const openAllBtnBottom = document.getElementById('openAllBtnBottom');
+            const closeAllBtnBottom = document.getElementById('closeAllBtnBottom');
+
+            // Function to toggle content visibility
+            function toggleContent(item) {
+                const content = item.querySelector('.timeline-content');
+                content.classList.toggle('expanded');
+            }
+
+            // Add click listener to each timeline item
+            timelineItems.forEach(item => {
+                item.addEventListener('click', () => {
+                    toggleContent(item);
+                });
+            });
+
+            // Function to open all items
+            function openAllItems() {
+                timelineItems.forEach(item => {
+                    const content = item.querySelector('.timeline-content');
+                    if (!content.classList.contains('expanded')) {
+                        content.classList.add('expanded');
+                    }
+                });
+            }
+
+            // Function to close all items
+            function closeAllItems() {
+                timelineItems.forEach(item => {
+                    const content = item.querySelector('.timeline-content');
+                    if (content.classList.contains('expanded')) {
+                        content.classList.remove('expanded');
+                    }
+                });
+            }
+
+            // Assign event listeners to top buttons
+            openAllBtnTop.addEventListener('click', openAllItems);
+            closeAllBtnTop.addEventListener('click', closeAllItems);
+
+            // Assign event listeners to bottom buttons
+            openAllBtnBottom.addEventListener('click', openAllItems);
+            closeAllBtnBottom.addEventListener('click', closeAllItems);
+
+            // Initialize Lucide icons
+            lucide.createIcons();
+        });
+    </script>
+</body>
+</html>
