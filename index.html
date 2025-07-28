@@ -1,0 +1,1023 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>International AI Governance: Application Quiz</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: "Inter", sans-serif;
+            background-color: #f0f4f8;
+            color: #333;
+            line-height: 1.6;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+            padding: 2rem 1rem;
+            box-sizing: border-box; /* Ensure padding is included in element's total width and height */
+        }
+        .container {
+            position: relative; /* Needed for absolute positioning of quiz-footer */
+            max-width: 900px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 2rem;
+            padding-bottom: 8rem; /* Increased padding to make space for the fixed footer */
+            background-color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            display: flex; /* Use flexbox for internal layout */
+            flex-direction: column; /* Stack children vertically */
+            min-height: 600px; /* Minimum height for better presentation */
+            overflow-y: auto; /* Allow scrolling for long questions */
+        }
+        h1 {
+            color: #1a202c;
+            font-size: 2.5rem;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        #question-counter {
+            text-align: center;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #4a5568;
+            margin-bottom: 1.5rem;
+        }
+        .question-card {
+            background-color: #f7fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            transition: all 0.2s ease-in-out;
+        }
+        .question-card:hover {
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+        }
+        .question-text {
+            font-size: 1.15rem;
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 1rem;
+        }
+        .options label {
+            display: block;
+            margin-bottom: 0.75rem;
+            cursor: pointer;
+            font-size: 1rem;
+            color: #4a5568;
+            transition: color 0.2s ease-in-out;
+            padding: 0.25rem 0.5rem; /* Added padding for better click area */
+            border-radius: 4px;
+        }
+        .options label:hover {
+            color: #2c5282;
+            background-color: #edf2f7; /* Highlight on hover */
+        }
+        .options input[type="radio"] {
+            margin-right: 0.75rem;
+            accent-color: #3182ce;
+            transform: scale(1.1); /* Slightly larger radio buttons */
+        }
+        .hint-button, .check-button {
+            background-color: #4299e1;
+            color: white;
+            padding: 0.6rem 1rem;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: background-color 0.2s ease-in-out;
+            margin-top: 1rem;
+            display: inline-block;
+            margin-right: 0.5rem; /* Space between hint and check */
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Subtle button shadow */
+        }
+        .hint-button:hover, .check-button:hover {
+            background-color: #3182ce;
+            transform: translateY(-1px); /* Slight lift on hover */
+        }
+        .hint-text {
+            margin-top: 0.75rem;
+            padding: 0.75rem;
+            background-color: #ebf8ff;
+            border: 1px solid #bee3f8;
+            border-radius: 6px;
+            font-style: italic;
+            color: #2b6cb0;
+            display: none; /* Hidden by default */
+        }
+
+        /* Quiz Footer for Navigation and Submit */
+        .quiz-footer {
+            position: absolute; /* Position relative to .container */
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background-color: #ffffff;
+            padding: 1rem 2rem;
+            border-top: 1px solid #e2e8f0;
+            border-radius: 0 0 12px 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.75rem;
+            box-shadow: 0 -5px 15px rgba(0, 0, 0, 0.05);
+            z-index: 100;
+        }
+
+        .navigation-buttons {
+            display: flex;
+            justify-content: space-between;
+            width: 100%; /* Take full width of footer */
+            max-width: 400px; /* Limit width for aesthetics */
+            margin-bottom: 0.5rem;
+        }
+        .nav-button, .submit-button, .retake-button {
+            padding: 0.8rem 1.2rem; /* Slightly smaller for better fit */
+            font-size: 1rem; /* Adjusted font size */
+            font-weight: 700;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.2s ease-in-out, transform 0.1s ease-in-out;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+        .nav-button.prev {
+            background-color: #e2e8f0;
+            color: #4a5568;
+        }
+        .nav-button.prev:hover:not(:disabled) {
+            background-color: #cbd5e0;
+            transform: translateY(-2px);
+        }
+        .nav-button.next {
+            background-color: #3182ce;
+            color: white;
+        }
+        .nav-button.next:hover:not(:disabled) {
+            background-color: #2b6cb0;
+            transform: translateY(-2px);
+        }
+        .submit-button {
+            background-color: #38a169;
+            color: white;
+            width: calc(100% - 4rem); /* Adjust width to match container padding */
+            max-width: 400px; /* Match nav buttons max-width */
+            margin-top: 0; /* Already handled by gap in quiz-footer */
+        }
+        .submit-button:hover:not(:disabled) {
+            background-color: #2f855a;
+            transform: translateY(-2px);
+        }
+        .retake-button {
+            background-color: #f6ad55;
+            color: white;
+            width: 100%;
+            margin-top: 1rem;
+        }
+        .retake-button:hover {
+            background-color: #ed8936;
+        }
+
+        .nav-button:disabled, .submit-button:disabled, .check-button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            box-shadow: none;
+            transform: none;
+        }
+        .results {
+            margin-top: 2rem;
+            padding: 1.5rem;
+            background-color: #e6fffa;
+            border: 1px solid #81e6d9;
+            border-radius: 8px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #2c7a7b;
+            text-align: center;
+            display: none;
+        }
+        .results-detail {
+            margin-top: 1rem;
+            text-align: left;
+            font-size: 1rem;
+            font-weight: normal;
+            color: #4a5568;
+        }
+        .results-detail div {
+            padding: 0.5rem 0;
+            border-bottom: 1px dashed #e2e8f0;
+        }
+        .results-detail div:last-child {
+            border-bottom: none;
+        }
+        .feedback {
+            margin-top: 0.5rem;
+            font-size: 0.9rem;
+            font-weight: 600;
+            padding-left: 1.5rem; /* Align with radio button */
+        }
+        .correct {
+            color: #38a169;
+        }
+        .incorrect {
+            color: #e53e3e;
+        }
+        .question-container {
+            display: none; /* Hidden by default */
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out; /* Smooth fade transition */
+            flex-grow: 1; /* Allow question content to take available space */
+        }
+        .question-container.active {
+            display: block; /* Only show active question */
+            opacity: 1;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            body {
+                padding: 1rem 0.5rem;
+            }
+            .container {
+                padding: 1rem;
+                padding-bottom: 7rem; /* Adjust for smaller footer on mobile */
+                border-radius: 0;
+                box-shadow: none;
+                min-height: 100vh; /* Take full height on mobile */
+            }
+            h1 {
+                font-size: 1.8rem;
+                margin-bottom: 1.5rem;
+            }
+            #question-counter {
+                font-size: 1rem;
+            }
+            .question-card {
+                padding: 1rem;
+            }
+            .question-text {
+                font-size: 1rem;
+            }
+            .options label {
+                font-size: 0.9rem;
+                margin-bottom: 0.6rem;
+            }
+            .hint-button, .check-button {
+                padding: 0.5rem 0.8rem;
+                font-size: 0.8rem;
+            }
+            .quiz-footer {
+                padding: 0.75rem 1rem;
+                border-radius: 0;
+            }
+            .navigation-buttons {
+                flex-direction: column; /* Stack nav buttons vertically on mobile */
+                gap: 0.5rem;
+                max-width: none;
+            }
+            .nav-button, .submit-button {
+                width: 100%; /* Full width buttons on mobile */
+                padding: 0.7rem 1rem;
+                font-size: 0.9rem;
+                margin-bottom: 0.5rem; /* Space between stacked buttons */
+                max-width: none;
+            }
+            .submit-button {
+                width: 100%; /* Ensure submit button also takes full width */
+            }
+            .retake-button {
+                width: 100%;
+                font-size: 0.9rem;
+            }
+            .results {
+                font-size: 1rem;
+                padding: 1rem;
+            }
+            .results-detail {
+                font-size: 0.85rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>International AI Governance: Application Quiz</h1>
+        <div id="question-counter"></div>
+        <form id="quizForm" class="flex flex-col flex-grow">
+            <!-- Question 1 -->
+            <div class="question-container" id="q-container-1">
+                <div class="question-card">
+                    <p class="question-text">1. An AI development company, facing stringent regulations in its home country (Country A), decides to move its primary AI training and deployment operations to Country B, which has minimal AI oversight. This scenario best illustrates which challenge in international AI governance?</p>
+                    <div class="options">
+                        <label><input type="radio" name="q1" value="a"> Data localization</label>
+                        <label><input type="radio" name="q1" value="b"> Regulatory arbitrage</label>
+                        <label><input type="radio" name="q1" value="c"> Technological asymmetry</label>
+                        <label><input type="radio" name="q1" value="d"> Interoperability issues</label>
+                    </div>
+                    <button type="button" class="hint-button" onclick="toggleHint('hint1')">Hint</button>
+                    <button type="button" class="check-button" onclick="checkAnswer(1)">Check Answer</button>
+                    <div id="hint1" class="hint-text">Think about companies seeking the path of least resistance in terms of regulation.</div>
+                    <div id="feedback1" class="feedback"></div>
+                </div>
+            </div>
+
+            <!-- Question 2 -->
+            <div class="question-container" id="q-container-2">
+                <div class="question-card">
+                    <p class="question-text">2. A global coalition of experts and governments wants to establish a common understanding of ethical AI principles quickly, without the lengthy process of treaty negotiation, but still aiming to influence national policies. Which type of international instrument would be most suitable for this goal?</p>
+                    <div class="options">
+                        <label><input type="radio" name="q2" value="a"> A legally binding treaty</label>
+                        <label><input type="radio" name="q2" value="b"> A soft law instrument (e.g., recommendation or principles)</label>
+                        <label><input type="radio" name="q2" value="c"> A bilateral investment treaty</label>
+                        <label><input type="radio" name="q2" value="d"> A trade agreement</label>
+                    </div>
+                    <button type="button" class="hint-button" onclick="toggleHint('hint2')">Hint</button>
+                    <button type="button" class="check-button" onclick="checkAnswer(2)">Check Answer</button>
+                    <div id="hint2" class="hint-text">Consider the speed and legal enforceability of different international agreements.</div>
+                    <div id="feedback2" class="feedback"></div>
+                </div>
+            </div>
+
+            <!-- Question 3 -->
+            <div class="question-container" id="q-container-3">
+                <div class="question-card">
+                    <p class="question-text">3. An AI-powered financial algorithm developed in Country X, and deployed globally via cloud services, causes a significant market crash that disproportionately affects investors in Country Y. On what basis might Country Y seek to assert jurisdiction over the developers in Country X?</p>
+                    <div class="options">
+                        <label><input type="radio" name="q3" value="a"> The principle of territoriality</label>
+                        <label><input type="radio" name="q3" value="b"> The effects doctrine</label>
+                        <label><input type="radio" name="q3" value="c"> The nationality principle</label>
+                        <label><input type="radio" name="q3" value="d"> The principle of universal jurisdiction</label>
+                    </div>
+                    <button type="button" class="hint-button" onclick="toggleHint('hint3')">Hint</button>
+                    <button type="button" class="check-button" onclick="checkAnswer(3)">Check Answer</button>
+                    <div id="hint3" class="hint-text">This doctrine allows jurisdiction when actions abroad have direct, substantial effects within a state's territory.</div>
+                    <div id="feedback3" class="feedback"></div>
+                </div>
+            </div>
+
+            <!-- Question 4 -->
+            <div class="question-container" id="q-container-4">
+                <div class="question-card">
+                    <p class="question-text">4. Researchers discover a new AI model that shows early signs of potentially unpredictable and harmful emergent behaviors, although definitive proof of widespread danger is still lacking. A group of states decides to impose temporary restrictions on its deployment. This action is most consistent with which international law principle?</p>
+                    <div class="options">
+                        <label><input type="radio" name="q4" value="a"> The principle of non-intervention</label>
+                        <label><input type="radio" name="q4" value="b"> The principle of sovereign equality</label>
+                        <label><input type="radio" name="q4" value="c"> The precautionary principle</label>
+                        <label><input type="radio" name="q4" value="d"> The principle of state responsibility</label>
+                    </div>
+                    <button type="button" class="hint-button" onclick="toggleHint('hint4')">Hint</button>
+                    <button type="button" class="check-button" onclick="checkAnswer(4)">Check Answer</button>
+                    <div id="hint4" class="hint-text">This principle encourages preventative action in the face of scientific uncertainty about potential harm.</div>
+                    <div id="feedback4" class="feedback"></div>
+                </div>
+            </div>
+
+            <!-- Question 5 -->
+            <div class="question-container" id="q-container-5">
+                <div class="question-card">
+                    <p class="question-text">5. A proposal is made to create a "Global AI Safety Agency" (GAISA) with powers similar to the International Atomic Energy Agency (IAEA). What is a primary reason why applying the IAEA model directly to AI software would be particularly challenging?</p>
+                    <div class="options">
+                        <label><input type="radio" name="q5" value="a"> Lack of sufficient funding for AI oversight</label>
+                        <label><input type="radio" name="q5" value="b"> Difficulty in localizing and enforcing oversight on intangible, software-based AI systems</label>
+                        <label><input type="radio" name="q5" value="c"> Insufficient number of AI experts globally</label>
+                        <label><input type="radio" name="q5" value="d"> The inherent secrecy of AI development</label>
+                    </div>
+                    <button type="button" class="hint-button" onclick="toggleHint('hint5')">Hint</button>
+                    <button type="button" class="check-button" onclick="checkAnswer(5)">Check Answer</button>
+                    <div id="hint5" class="hint-text">Think about the difference between physical nuclear materials and digital AI code.</div>
+                    <div id="feedback5" class="feedback"></div>
+                </div>
+            </div>
+
+            <!-- Question 6 -->
+            <div class="question-container" id="q-container-6">
+                <div class="question-card">
+                    <p class="question-text">6. A dominant technology company acquires several smaller AI startups, integrates their technologies into its ecosystem, and makes it difficult for other companies to access critical data and computing resources needed to compete. This situation raises concerns primarily related to which aspect of AI governance?</p>
+                    <div class="options">
+                        <label><input type="radio" name="q6" value="a"> Data privacy</label>
+                        <label><input type="radio" name="q6" value="b"> Algorithmic bias</label>
+                        <label><input type="radio" name="q6" value="c"> Market power and anti-competitive practices</label>
+                        <label><input type="radio" name="q6" value="d"> Cybersecurity vulnerabilities</label>
+                    </div>
+                    <button type="button" class="hint-button" onclick="toggleHint('hint6')">Hint</button>
+                    <button type="button" class="check-button" onclick="checkAnswer(6)">Check Answer</button>
+                    <div id="hint6" class="hint-text">Consider how control over the AI value chain can lead to dominance.</div>
+                    <div id="feedback6" class="feedback"></div>
+                </div>
+            </div>
+
+            <!-- Question 7 -->
+            <div class="question-container" id="q-container-7">
+                <div class="question-card">
+                    <p class="question-text">7. A private space company, based in Country P, launches an AI-powered satellite that veers off course and collides with another nation's satellite in orbit. According to the Outer Space Treaty (1967), who primarily bears international responsibility for this incident?</p>
+                    <div class="options">
+                        <label><input type="radio" name="q7" value="a"> The private company itself</label>
+                        <label><input type="radio" name="q7" value="b"> Country P</label>
+                        <label><input type="radio" name="q7" value="c"> The United Nations</label>
+                        <label><input type="radio" name="q7" value="d"> The satellite's AI system</label>
+                    </div>
+                    <button type="button" class="hint-button" onclick="toggleHint('hint7')">Hint</button>
+                    <button type="button" class="check-button" onclick="checkAnswer(7)">Check Answer</button>
+                    <div id="hint7" class="hint-text">Recall Article VI of the Outer Space Treaty regarding national activities in space.</div>
+                    <div id="feedback7" class="feedback"></div>
+                </div>
+            </div>
+
+            <!-- Question 8 -->
+            <div class="question-container" id="q-container-8">
+                <div class="question-card">
+                    <p class="question-text">8. An advanced AI-driven cyberattack is launched against critical infrastructure in a sovereign state. The attack uses sophisticated obfuscation techniques and routes through multiple proxy servers globally, making it extremely difficult to trace back to its origin. This scenario highlights a significant challenge in international law regarding AI, specifically related to:</p>
+                    <div class="options">
+                        <label><input type="radio" name="q8" value="a"> The principle of non-intervention</label>
+                        <label><input type="radio" name="q8" value="b"> Attribution of responsibility</label>
+                        <label><input type="radio" name="q8" value="c"> The right to self-defense</label>
+                        <label><input type="radio" name="q8" value="d"> Data sovereignty</label>
+                    </div>
+                    <button type="button" class="hint-button" onclick="toggleHint('hint8')">Hint</button>
+                    <button type="button" class="check-button" onclick="checkAnswer(8)">Check Answer</button>
+                    <div id="hint8" class="hint-text">Think about identifying who is accountable for a harmful act.</div>
+                    <div id="feedback8" class="feedback"></div>
+                </div>
+            </div>
+
+            <!-- Question 9 -->
+            <div class="question-container" id="q-container-9">
+                <div class="question-card">
+                    <p class="question-text">9. A government considers imposing strict export controls on a powerful, general-purpose AI model that is widely available as open-source software. This decision presents a significant regulatory dilemma. What is the core tension this government faces?</p>
+                    <div class="options">
+                        <label><input type="radio" name="q9" value="a"> Balancing economic growth with national security</label>
+                        <label><input type="radio" name="q9" value="b"> Balancing security concerns with the benefits of openness, collaboration, and innovation in open-source AI</label>
+                        <label><input type="radio" name="q9" value="c"> Balancing domestic regulation with international trade agreements</label>
+                        <label><input type="radio" name="q9" value="d"> Balancing public access with corporate intellectual property rights</label>
+                    </div>
+                    <button type="button" class="hint-button" onclick="toggleHint('hint9')">Hint</button>
+                    <button type="button" class="check-button" onclick="checkAnswer(9)">Check Answer</button>
+                    <div id="hint9" class="hint-text">Consider the dual nature of open-source technology – its accessibility versus potential misuse.</div>
+                    <div id="feedback9" class="feedback"></div>
+                </div>
+            </div>
+
+            <!-- Question 10 -->
+            <div class="question-container" id="q-container-10">
+                <div class="question-card">
+                    <p class="question-text">10. A lawyer is appointed to a national ethics board tasked with advising on AI policy. Beyond traditional legal statutes, what additional literacy would be most crucial for this lawyer to effectively contribute to the board's discussions?</p>
+                    <div class="options">
+                        <label><input type="radio" name="q10" value="a"> Advanced statistical analysis</label>
+                        <label><input type="radio" name="q10" value="b"> Data structures, algorithmic reasoning, and technical constraints</label>
+                        <label><input type="radio" name="q10" value="c"> International trade law</label>
+                        <label><input type="radio" name="q10" value="d"> Public relations and communication strategies</label>
+                    </div>
+                    <button type="button" class="hint-button" onclick="toggleHint('hint10')">Hint</button>
+                    <button type="button" class="check-button" onclick="checkAnswer(10)">Check Answer</button>
+                    <div id="hint10" class="hint-text">The PDF emphasizes the need for lawyers to understand the technical aspects of AI.</div>
+                    <div id="feedback10" class="feedback"></div>
+                </div>
+            </div>
+
+            <!-- Question 11 -->
+            <div class="question-container" id="q-container-11">
+                <div class="question-card">
+                    <p class="question-text">11. To ensure comprehensive and legitimate AI governance, a new international initiative decides to include representatives from governments, civil society organizations, academic researchers, and private industry. This approach best exemplifies which model of governance?</p>
+                    <div class="options">
+                        <label><input type="radio" name="q11" value="a"> Centralized regulatory governance</label>
+                        <label><input type="radio" name="q11" value="b"> State-centric governance</label>
+                        <label><input type="radio" name="q11" value="c"> Multistakeholder governance</label>
+                        <label><input type="radio" name="q11" value="d"> Unilateral national governance</label>
+                    </div>
+                    <button type="button" class="hint-button" onclick="toggleHint('hint11')">Hint</button>
+                    <button type="button" class="check-button" onclick="checkAnswer(11)">Check Answer</button>
+                    <div id="hint11" class="hint-text">Think about the diversity of actors involved in this governance model.</div>
+                    <div id="feedback11" class="feedback"></div>
+                </div>
+            </div>
+
+            <!-- Question 12 -->
+            <div class="question-container" id="q-container-12">
+                <div class="question-card">
+                    <p class="question-text">12. A nation is developing its first comprehensive national AI strategy and wants to ensure it aligns with globally recognized ethical standards. Which widely supported international soft-law instrument on AI would be the most appropriate and influential starting point for their policy development?</p>
+                    <div class="options">
+                        <label><input type="radio" name="q12" value="a"> The Bletchley Declaration</label>
+                        <label><input type="radio" name="q12" value="b"> The OECD AI Principles</label>
+                        <label><input type="radio" name="q12" value="c"> The UNESCO Recommendation on the Ethics of Artificial Intelligence</label>
+                        <label><input type="radio" name="q12" value="d"> The Council of Europe Framework Convention on AI</label>
+                    </div>
+                    <button type="button" class="hint-button" onclick="toggleHint('hint12')">Hint</button>
+                    <button type="button" class="check-button" onclick="checkAnswer(12)">Check Answer</button>
+                    <div id="hint12" class="hint-text">This instrument was unanimously adopted by 193 member states.</div>
+                    <div id="feedback12" class="feedback"></div>
+                </div>
+            </div>
+
+            <!-- Question 13 -->
+            <div class="question-container" id="q-container-13">
+                <div class="question-card">
+                    <p class="question-text">13. A government agency is tasked with evaluating the potential catastrophic risks associated with the most advanced, cutting-edge AI models before they are widely deployed. Which type of institution is specifically designed for this kind of technical risk evaluation?</p>
+                    <div class="options">
+                        <label><input type="radio" name="q13" value="a"> International courts of justice</label>
+                        <label><input type="radio" name="q13" value="b"> AI Safety Institutes (AISI)</label>
+                        <label><input type="radio" name="q13" value="c"> Standard-setting organizations</label>
+                        <label><input type="radio" name="q13" value="d"> Human rights commissions</label>
+                    </div>
+                    <button type="button" class="hint-button" onclick="toggleHint('hint13')">Hint</button>
+                    <button type="button" class="check-button" onclick="checkAnswer(13)">Check Answer</button>
+                    <div id="hint13" class="hint-text">These institutes focus on testing and assessing frontier AI.</div>
+                    <div id="feedback13" class="feedback"></div>
+                </div>
+            </div>
+
+            <!-- Question 14 -->
+            <div class="question-container" id="q-container-14">
+                <div class="question-card">
+                    <p class="question-text">14. If various countries continue to develop their own distinct and often conflicting AI regulations without significant international coordination, what is the most likely negative consequence for global AI development and deployment?</p>
+                    <div class="options">
+                        <label><input type="radio" name="q14" value="a"> Increased innovation due to diverse approaches</label>
+                        <label><input type="radio" name="q14" value="b"> Legal fragmentation, hindering interoperability and creating compliance burdens</label>
+                        <label><input type="radio" name="q14" value="c"> A decrease in AI-related cyberattacks</label>
+                        <label><input type="radio" name="q14" value="d"> Enhanced public trust in AI systems</label>
+                    </div>
+                    <button type="button" class="hint-button" onclick="toggleHint('hint14')">Hint</button>
+                    <button type="button" class="check-button" onclick="checkAnswer(14)">Check Answer</button>
+                    <div id="hint14" class="hint-text">Think about the challenges of operating an AI system across many different legal frameworks.</div>
+                    <div id="feedback14" class="feedback"></div>
+                </div>
+            </div>
+
+            <!-- Question 15 -->
+            <div class="question-container" id="q-container-15">
+                <div class="question-card">
+                    <p class="question-text">15. A state becomes aware that an AI system being developed by a private entity within its territory has the potential to cause significant transboundary environmental harm if deployed. What international legal obligation might compel this state to take preventative measures, even if the harm is not yet certain?</p>
+                    <div class="options">
+                        <label><input type="radio" name="q15" value="a"> The principle of non-interference</label>
+                        <label><input type="radio" name="q15" value="b"> The principle of due diligence</label>
+                        <label><input type="radio" name="q15" value="c"> The principle of reciprocity</label>
+                        <label><input type="radio" name="q15" value="d"> The principle of self-determination</label>
+                    </div>
+                    <button type="button" class="hint-button" onclick="toggleHint('hint15')">Hint</button>
+                    <button type="button" class="check-button" onclick="checkAnswer(15)">Check Answer</button>
+                    <div id="hint15" class="hint-text">This principle requires states to prevent harm originating from their territory, even if caused by non-state actors.</div>
+                    <div id="feedback15" class="feedback"></div>
+                </div>
+            </div>
+
+            <!-- Question 16 -->
+            <div class="question-container" id="q-container-16">
+                <div class="question-card">
+                    <p class="question-text">16. A multinational corporation wants to ensure its AI products are developed and deployed responsibly across all its global operations. It decides to adopt a set of internal guidelines that align with the OECD AI Principles. What is the primary benefit of aligning with such a 'soft law' instrument?</p>
+                    <div class="options">
+                        <label><input type="radio" name="q16" value="a"> It provides direct legal immunity from lawsuits.</label>
+                        <label><input type="radio" name="q16" value="b"> It automatically grants access to new markets.</label>
+                        <label><input type="radio" name="q16" value="c"> It shapes behavior through normative pressure and enhances reputation, even without legal enforceability.</label>
+                        <label><input type="radio" name="q16" value="d"> It replaces the need for any national regulations.</label>
+                    </div>
+                    <button type="button" class="hint-button" onclick="toggleHint('hint16')">Hint</button>
+                    <button type="button" class="check-button" onclick="checkAnswer(16)">Check Answer</button>
+                    <div id="hint16" class="hint-text">Think about how non-binding principles still influence conduct and perception.</div>
+                    <div id="feedback16" class="feedback"></div>
+                </div>
+            </div>
+
+            <!-- Question 17 -->
+            <div class="question-container" id="q-container-17">
+                <div class="question-card">
+                    <p class="question-text">17. A group of G7 nations convenes to discuss how to manage the risks associated with the most powerful and potentially dangerous AI models. Their joint statement emphasizes shared responsibility and a need for international cooperation on these specific AI systems. This scenario is most reflective of the discussions leading to which key declaration?</p>
+                    <div class="options">
+                        <label><input type="radio" name="q17" value="a"> The Rome Call for AI Ethics</label>
+                        <label><input type="radio" name="q17" value="b"> The Bletchley Declaration</label>
+                        <label><input type="radio" name="q17" value="c"> The Asilomar AI Principles</label>
+                        <label><input type="radio" name="q17" value="d"> The Beijing AI Principles</label>
+                    </div>
+                    <button type="button" class="hint-button" onclick="toggleHint('hint17')">Hint</button>
+                    <button type="button" class="check-button" onclick="checkAnswer(17)">Check Answer</button>
+                    <div id="hint17" class="hint-text">This declaration specifically focused on "frontier AI risks."</div>
+                    <div id="feedback17" class="feedback"></div>
+                </div>
+            </div>
+
+            <!-- Question 18 -->
+            <div class="question-container" id="q-container-18">
+                <div class="question-card">
+                    <p class="question-text">18. An international organization is established to foster collaboration among states on responsible AI development, share best practices, and facilitate research, but it does not have the power to create legally binding rules. Which existing institutional model does this most closely resemble?</p>
+                    <div class="options">
+                        <label><input type="radio" name="q18" value="a"> The European Union</label>
+                        <label><input type="radio" name="q18" value="b"> The World Trade Organization (WTO)</label>
+                        <label><input type="radio" name="q18" value="c"> The Global Partnership on AI (GPAI)</label>
+                        <label><input type="radio" name="q18" value="d"> The International Criminal Court (ICC)</label>
+                    </div>
+                    <button type="button" class="hint-button" onclick="toggleHint('hint18')">Hint</button>
+                    <button type="button" class="check-button" onclick="checkAnswer(18)">Check Answer</button>
+                    <div id="hint18" class="hint-text">This organization is hosted by the OECD and involves over 25 countries.</div>
+                    <div id="feedback18" class="feedback"></div>
+                </div>
+            </div>
+
+            <!-- Question 19 -->
+            <div class="question-container" id="q-container-19">
+                <div class="question-card">
+                    <p class="question-text">19. A country is developing an AI system for its military, which has dual-use capabilities (both civilian and military applications). The international community expresses concern about the potential for misuse. This situation highlights AI's unique challenge as a transboundary technology due to its:</p>
+                    <div class="options">
+                        <label><input type="radio" name="q19" value="a"> High energy consumption</label>
+                        <label><input type="radio" name="q19" value="b"> Dual-use nature and potential for misuse by state and non-state actors</label>
+                        <label><input type="radio" name="q19" value="c"> Complexity of algorithms</label>
+                        <label><input type="radio" name="q19" value="d"> Dependence on large datasets</label>
+                    </div>
+                    <button type="button" class="hint-button" onclick="toggleHint('hint19')">Hint</button>
+                    <button type="button" class="check-button" onclick="checkAnswer(19)">Check Answer</button>
+                    <div id="hint19" class="hint-text">Think about technologies that can be used for both good and harm.</div>
+                    <div id="feedback19" class="feedback"></div>
+                </div>
+            </div>
+
+            <!-- Question 20 -->
+            <div class="question-container" id="q-container-20">
+                <div class="question-card">
+                    <p class="question-text">20. A global AI company is training its models by scraping vast amounts of data from the internet, including personal information and copyrighted material from various countries. This practice raises international concerns primarily related to:</p>
+                    <div class="options">
+                        <label><input type="radio" name="q20" value="a"> Computational power requirements</label>
+                        <label><input type="radio" name="q20" value="b"> International privacy, intellectual property (IP), and cultural rights issues</label>
+                        <label><input type="radio" name="q20" value="c"> The speed of model deployment</label>
+                        <label><input type="radio" name="q20" value="d"> The difficulty of model interpretation</label>
+                    </div>
+                    <button type="button" class="hint-button" onclick="toggleHint('hint20')">Hint</button>
+                    <button type="button" class="check-button" onclick="checkAnswer(20)">Check Answer</button>
+                    <div id="hint20" class="hint-text">Consider the legal and ethical implications of using data from diverse sources without explicit consent or licensing.</div>
+                    <div id="feedback20" class="feedback"></div>
+                </div>
+            </div>
+
+            <!-- Question 21 -->
+            <div class="question-container" id="q-container-21">
+                <div class="question-card">
+                    <p class="question-text">21. A developing nation expresses concern that advanced AI capabilities are concentrated in a few technologically advanced countries, leading to a widening gap in economic and military power. This concern relates to which unique challenge of AI as a transboundary technology?</p>
+                    <div class="options">
+                        <label><input type="radio" name="q21" value="a"> The problem of algorithmic bias</label>
+                        <label><input type="radio" name="q21" value="b"> The amplification of existing asymmetries in technological capacity</label>
+                        <label><input type="radio" name="q21" value="c"> The challenge of explainable AI</label>
+                        <label><input type="radio" name="q21" value="d"> The difficulty of securing AI supply chains</label>
+                    </div>
+                    <button type="button" class="hint-button" onclick="toggleHint('hint21')">Hint</button>
+                    <button type="button" class="check-button" onclick="checkAnswer(21)">Check Answer</button>
+                    <div id="hint21" class="hint-text">Think about how AI can exacerbate existing inequalities between nations.</div>
+                    <div id="feedback21" class="feedback"></div>
+                </div>
+            </div>
+
+            <!-- Question 22 -->
+            <div class="question-container" id="q-container-22">
+                <div class="question-card">
+                    <p class="question-text">22. An international legal scholar argues that the existing framework of international human rights law, designed for human actors, needs significant adaptation to address the impacts of AI systems. This argument primarily stems from AI's characteristic of:</p>
+                    <div class="options">
+                        <label><input type="radio" name="q22" value="a"> Being a general-purpose technology</label>
+                        <label><input type="radio" name="q22" value="b"> Operating with a degree of autonomy and opacity that challenges traditional accountability models</label>
+                        <label><input type="radio" name="q22" value="c"> Requiring vast amounts of data</label>
+                        <label><input type="radio" name="q22" value="d"> Its rapid pace of development</label>
+                    </div>
+                    <button type="button" class="hint-button" onclick="toggleHint('hint22')">Hint</button>
+                    <button type="button" class="check-button" onclick="checkAnswer(22)">Check Answer</button>
+                    <div id="hint22" class="hint-text">Consider why it's hard to apply existing legal frameworks to AI's decision-making processes.</div>
+                    <div id="feedback22" class="feedback"></div>
+                </div>
+            </div>
+
+            <!-- Question 23 -->
+            <div class="question-container" id="q-container-23">
+                <div class="question-card">
+                    <p class="question-text">23. A group of states is negotiating a new international convention on AI. One of the main points of contention is how to define "harm" caused by AI and how to ensure compliance and enforcement across different legal systems. This challenge highlights the difficulty in achieving consensus on:</p>
+                    <div class="options">
+                        <label><input type="radio" name="q23" value="a"> The technical specifications of AI models</label>
+                        <label><input type="radio" name="q23" value="b"> Divergent regulatory philosophies and legal traditions</label>
+                        <label><input type="radio" name="q23" value="c"> The speed of technological advancement</label>
+                        <label><input type="radio" name="q23" value="d"> The cost of AI development</label>
+                    </div>
+                    <button type="button" class="hint-button" onclick="toggleHint('hint23')">Hint</button>
+                    <button type="button" class="check-button" onclick="checkAnswer(23)">Check Answer</button>
+                    <div id="hint23" class="hint-text">Different countries have different approaches to law and regulation.</div>
+                    <div id="feedback23" class="feedback"></div>
+                </div>
+            </div>
+
+            <!-- Question 24 -->
+            <div class="question-container" id="q-container-24">
+                <div class="question-card">
+                    <p class="question-text">24. An international working group is tasked with developing a framework for responsible AI procurement by governments. They decide to incorporate principles that ensure transparency in AI systems and accountability for their decisions. These efforts align with the broader goal of international AI governance to:</p>
+                    <div class="options">
+                        <label><input type="radio" name="q24" value="a"> Promote AI innovation at all costs</label>
+                        <label><input type="radio" name="q24" value="b"> Articulate and encode collective values, such as rights-based or democratic principles</label>
+                        <label><input type="radio" name="q24" value="c"> Limit the development of AI to a few key actors</label>
+                        <label><input type="radio" name="q24" value="d"> Focus solely on economic benefits of AI</label>
+                    </div>
+                    <button type="button" class="hint-button" onclick="toggleHint('hint24')">Hint</button>
+                    <button type="button" class="check-button" onclick="checkAnswer(24)">Check Answer</button>
+                    <div id="hint24" class="hint-text">The PDF concludes by discussing the ultimate purpose of international law in this context.</div>
+                    <div id="feedback24" class="feedback"></div>
+                </div>
+            </div>
+
+            <!-- Question 25 -->
+            <div class="question-container" id="q-container-25">
+                <div class="question-card">
+                    <p class="question-text">25. Imagine a scenario where a state-of-the-art AI model, designed for medical diagnostics, is deployed in a country with limited regulatory capacity and oversight. While the model shows promise, there's a risk of misdiagnosis due to insufficient local data for training or cultural biases in its design. This highlights the importance of addressing AI's impact on:</p>
+                    <div class="options">
+                        <label><input type="radio" name="q25" value="a"> Energy consumption</label>
+                        <label><input type="radio" name="q25" value="b"> Global equity and addressing existing asymmetries</label>
+                        <label><input type="radio" name="q25" value="c"> Hardware infrastructure development</label>
+                        <label><input type="radio" name="q25" value="d"> The speed of scientific publications</label>
+                    </div>
+                    <button type="button" class="hint-button" onclick="toggleHint('hint25')">Hint</button>
+                    <button type="button" class="check-button" onclick="checkAnswer(25)">Check Answer</button>
+                    <div id="hint25" class="hint-text">Think about how AI can affect different regions or populations unevenly.</div>
+                    <div id="feedback25" class="feedback"></div>
+                </div>
+            </div>
+
+            <!-- This div will contain the navigation and submit buttons -->
+            <div class="quiz-footer">
+                <div class="navigation-buttons">
+                    <button type="button" class="nav-button prev" id="prevBtn" disabled>Previous</button>
+                    <button type="button" class="nav-button next" id="nextBtn">Next</button>
+                </div>
+                <button type="button" class="submit-button" id="finalSubmitBtn">Submit Quiz</button>
+            </div>
+        </form>
+        <div id="results" class="results">
+            <h2 class="text-2xl font-bold mb-4">Quiz Results</h2>
+            <div id="scoreDisplay"></div>
+            <div id="resultsDetail" class="results-detail"></div>
+            <button type="button" class="retake-button" id="retakeBtn">Retake Quiz</button>
+        </div>
+    </div>
+
+    <script>
+        const answers = {
+            q1: 'b', q2: 'b', q3: 'b', q4: 'c', q5: 'b',
+            q6: 'c', q7: 'b', q8: 'b', q9: 'b', q10: 'b',
+            q11: 'c', q12: 'c', q13: 'b', q14: 'b', q15: 'b',
+            q16: 'c', q17: 'b', q18: 'c', q19: 'b', q20: 'b',
+            q21: 'b', q22: 'b', q23: 'b', q24: 'b', q25: 'b'
+        };
+
+        const questionTexts = {
+            q1: "1. An AI development company, facing stringent regulations in its home country (Country A), decides to move its primary AI training and deployment operations to Country B, which has minimal AI oversight. This scenario best illustrates which challenge in international AI governance?",
+            q2: "2. A global coalition of experts and governments wants to establish a common understanding of ethical AI principles quickly, without the lengthy process of treaty negotiation, but still aiming to influence national policies. Which type of international instrument would be most suitable for this goal?",
+            q3: "3. An AI-powered financial algorithm developed in Country X, and deployed globally via cloud services, causes a significant market crash that disproportionately affects investors in Country Y. On what basis might Country Y seek to assert jurisdiction over the developers in Country X?",
+            q4: "4. Researchers discover a new AI model that shows early signs of potentially unpredictable and harmful emergent behaviors, although definitive proof of widespread danger is still lacking. A group of states decides to impose temporary restrictions on its deployment. This action is most consistent with which international law principle?",
+            q5: "5. A proposal is made to create a \"Global AI Safety Agency\" (GAISA) with powers similar to the International Atomic Energy Agency (IAEA). What is a primary reason why applying the IAEA model directly to AI software would be particularly challenging?",
+            q6: "6. A dominant technology company acquires several smaller AI startups, integrates their technologies into its ecosystem, and makes it difficult for other companies to access critical data and computing resources needed to compete. This situation raises concerns primarily related to which aspect of AI governance?",
+            q7: "7. A private space company, based in Country P, launches an AI-powered satellite that veers off course and collides with another nation's satellite in orbit. According to the Outer Space Treaty (1967), who primarily bears international responsibility for this incident?",
+            q8: "8. An advanced AI-driven cyberattack is launched against critical infrastructure in a sovereign state. The attack uses sophisticated obfuscation techniques and routes through multiple proxy servers globally, making it extremely difficult to trace back to its origin. This scenario highlights a significant challenge in international law regarding AI, specifically related to:",
+            q9: "9. A government considers imposing strict export controls on a powerful, general-purpose AI model that is widely available as open-source software. This decision presents a significant regulatory dilemma. What is the core tension this government faces?",
+            q10: "10. A lawyer is appointed to a national ethics board tasked with advising on AI policy. Beyond traditional legal statutes, what additional literacy would be most crucial for this lawyer to effectively contribute to the board's discussions?",
+            q11: "11. To ensure comprehensive and legitimate AI governance, a new international initiative decides to include representatives from governments, civil society organizations, academic researchers, and private industry. This approach best exemplifies which model of governance?",
+            q12: "12. A nation is developing its first comprehensive national AI strategy and wants to ensure it aligns with globally recognized ethical standards. Which widely supported international soft-law instrument on AI would be the most appropriate and influential starting point for their policy development?",
+            q13: "13. A government agency is tasked with evaluating the potential catastrophic risks associated with the most advanced, cutting-edge AI models before they are widely deployed. Which type of institution is specifically designed for this kind of technical risk evaluation?",
+            q14: "14. If various countries continue to develop their own distinct and often conflicting AI regulations without significant international coordination, what is the most likely negative consequence for global AI development and deployment?",
+            q15: "15. A state becomes aware that an AI system being developed by a private entity within its territory has the potential to cause significant transboundary environmental harm if deployed. What international legal obligation might compel this state to take preventative measures, even if the harm is not yet certain?",
+            q16: "16. A multinational corporation wants to ensure its AI products are developed and deployed responsibly across all its global operations. It decides to adopt a set of internal guidelines that align with the OECD AI Principles. What is the primary benefit of aligning with such a 'soft law' instrument?",
+            q17: "17. A group of G7 nations convenes to discuss how to manage the risks associated with the most powerful and potentially dangerous AI models. Their joint statement emphasizes shared responsibility and a need for international cooperation on these specific AI systems. This scenario is most reflective of the discussions leading to which key declaration?",
+            q18: "18. An international organization is established to foster collaboration among states on responsible AI development, share best practices, and facilitate research, but it does not have the power to create legally binding rules. Which existing institutional model does this most closely resemble?",
+            q19: "19. A country is developing an AI system for its military, which has dual-use capabilities (both civilian and military applications). The international community expresses concern about the potential for misuse. This situation highlights AI's unique challenge as a transboundary technology due to its:",
+            q20: "20. A global AI company is training its models by scraping vast amounts of data from the internet, including personal information and copyrighted material from various countries. This practice raises international concerns primarily related to:",
+            q21: "21. A developing nation expresses concern that advanced AI capabilities are concentrated in a few technologically advanced countries, leading to a widening gap in economic and military power. This concern relates to which unique challenge of AI as a transboundary technology?",
+            q22: "22. An international legal scholar argues that the existing framework of international human rights law, designed for human actors, needs significant adaptation to address the impacts of AI systems. This argument primarily stems from AI's characteristic of:",
+            q23: "23. A group of states is negotiating a new international convention on AI. One of the main points of contention is how to define \"harm\" caused by AI and how to ensure compliance and enforcement across different legal systems. This challenge highlights the difficulty in achieving consensus on:",
+            q24: "24. An international working group is tasked with developing a framework for responsible AI procurement by governments. They decide to incorporate principles that ensure transparency in AI systems and accountability for their decisions. These efforts align with the broader goal of international AI governance to:",
+            q25: "25. Imagine a scenario where a state-of-the-art AI model, designed for medical diagnostics, is deployed in a country with limited regulatory capacity and oversight. While the model shows promise, there's a risk of misdiagnosis due to insufficient local data for training or cultural biases in its design. This highlights the importance of addressing AI's impact on:"
+        };
+
+        let currentQuestionIndex = 1;
+        const totalQuestions = Object.keys(answers).length;
+        const questionContainers = document.querySelectorAll('.question-container');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const finalSubmitBtn = document.getElementById('finalSubmitBtn');
+        const questionCounter = document.getElementById('question-counter');
+        const quizForm = document.getElementById('quizForm');
+        const resultsDiv = document.getElementById('results');
+        const scoreDisplay = document.getElementById('scoreDisplay');
+        const resultsDetail = document.getElementById('resultsDetail');
+        const retakeBtn = document.getElementById('retakeBtn');
+
+        const userAnswers = {}; // Stores user's selected value for each question
+        const questionStatus = {}; // Stores true/false for correctness of each question
+
+        // Function to add copyright notice dynamically
+        function addCopyrightNotice() {
+            const questionCards = document.querySelectorAll('.question-card');
+            questionCards.forEach(card => {
+                // Check if copyright notice already exists to prevent duplicates on retake
+                if (!card.querySelector('.copyright-notice')) {
+                    const copyrightDiv = document.createElement('div');
+                    copyrightDiv.className = 'copyright-notice text-xs text-gray-400 mt-4 pt-2 border-t border-gray-200 text-center';
+                    copyrightDiv.innerHTML = '&copy; 2025 James M. Cooper, Kashyap Kompella, AI Profs. All rights reserved.';
+                    card.appendChild(copyrightDiv);
+                }
+            });
+        }
+
+
+        function updateQuestionCounter() {
+            questionCounter.textContent = `Question ${currentQuestionIndex} of ${totalQuestions}`;
+        }
+
+        function showQuestion(index) {
+            questionContainers.forEach(container => {
+                container.classList.remove('active');
+                container.style.opacity = 0; // Ensure it fades out
+            });
+
+            const currentContainer = document.getElementById(`q-container-${index}`);
+            if (currentContainer) {
+                currentContainer.classList.add('active');
+                currentContainer.style.opacity = 1; // Fade in
+            }
+
+            updateNavigationButtons();
+            updateQuestionCounter();
+
+            // Hide hint and feedback when navigating to a new question (unless already checked)
+            const hintElement = document.getElementById(`hint${index}`);
+            const feedbackElement = document.getElementById(`feedback${index}`);
+            const checkButton = currentContainer ? currentContainer.querySelector('.check-button') : null;
+            const radios = currentContainer ? currentContainer.querySelectorAll('input[type="radio"]') : [];
+
+            if (!(questionStatus[`q${index}`] === true || questionStatus[`q${index}`] === false)) {
+                // Only reset if not already checked
+                if (hintElement) hintElement.style.display = 'none';
+                if (feedbackElement) {
+                    feedbackElement.textContent = '';
+                    feedbackElement.className = 'feedback'; // Reset class
+                }
+                radios.forEach(radio => radio.disabled = false); // Re-enable radios if not submitted
+                if (checkButton) checkButton.disabled = false;
+            } else {
+                // If question was already checked, keep feedback and disabled state
+                radios.forEach(radio => radio.disabled = true);
+                if (checkButton) checkButton.disabled = true;
+                if (hintElement) hintElement.style.display = 'none'; // Keep hint hidden after checking
+            }
+
+            // Restore previously selected answer if any
+            radios.forEach(radio => {
+                if (userAnswers[`q${index}`] === radio.value) {
+                    radio.checked = true;
+                } else {
+                    radio.checked = false; // Uncheck others
+                }
+            });
+        }
+
+        function updateNavigationButtons() {
+            prevBtn.disabled = (currentQuestionIndex === 1);
+            nextBtn.disabled = (currentQuestionIndex === totalQuestions);
+        }
+
+        function toggleHint(hintId) {
+            const hintElement = document.getElementById(hintId);
+            if (hintElement) {
+                hintElement.style.display = hintElement.style.display === 'block' ? 'none' : 'block';
+            }
+        }
+
+        function checkAnswer(questionNumber) {
+            const questionName = `q${questionNumber}`;
+            const selectedOption = document.querySelector(`input[name="${questionName}"]:checked`);
+            const feedbackElement = document.getElementById(`feedback${questionNumber}`);
+            const radios = document.querySelectorAll(`input[name="${questionName}"]`);
+            const checkButton = document.querySelector(`#q-container-${questionNumber} .check-button`);
+
+            if (selectedOption) {
+                userAnswers[questionName] = selectedOption.value; // Store the answer
+                if (selectedOption.value === answers[questionName]) {
+                    feedbackElement.textContent = 'Correct!';
+                    feedbackElement.className = 'feedback correct';
+                    questionStatus[questionName] = true;
+                } else {
+                    feedbackElement.textContent = `Incorrect. The correct answer was ${answers[questionName].toUpperCase()}.`;
+                    feedbackElement.className = 'feedback incorrect';
+                    questionStatus[questionName] = false;
+                }
+                // Disable options and check button after checking
+                radios.forEach(radio => radio.disabled = true);
+                if (checkButton) checkButton.disabled = true;
+            } else {
+                feedbackElement.textContent = 'Please select an answer first!';
+                feedbackElement.className = 'feedback incorrect';
+                questionStatus[questionName] = undefined; // No answer selected
+            }
+        }
+
+        function submitQuiz() {
+            // Ensure the current question is checked before final submission
+            checkAnswer(currentQuestionIndex);
+
+            let score = 0;
+            resultsDetail.innerHTML = ''; // Clear previous results detail
+
+            for (let i = 1; i <= totalQuestions; i++) {
+                const questionName = `q${i}`;
+                const isCorrect = questionStatus[questionName]; // Get status from checkAnswer calls
+                const selectedRadio = document.querySelector(`input[name="${questionName}"]:checked`);
+                const userAnswer = selectedRadio ? selectedRadio.value : 'Not answered';
+                const correctAnswer = answers[questionName];
+
+                const resultItem = document.createElement('div');
+                let statusText = '';
+                let statusClass = '';
+
+                if (isCorrect === true) {
+                    score++;
+                    statusText = 'Correct';
+                    statusClass = 'correct';
+                } else if (isCorrect === false) {
+                    statusText = `Incorrect (Correct: ${correctAnswer.toUpperCase()})`;
+                    statusClass = 'incorrect';
+                } else {
+                    statusText = 'Not Answered';
+                    statusClass = 'text-gray-500';
+                }
+
+                resultItem.innerHTML = `
+                    <p class="font-semibold">${questionTexts[questionName]}</p>
+                    <p>Your Answer: ${userAnswer.toUpperCase()} <span class="${statusClass}">(${statusText})</span></p>
+                `;
+                resultsDetail.appendChild(resultItem);
+
+                // Disable all radios and check buttons for all questions
+                const qContainer = document.getElementById(`q-container-${i}`);
+                if (qContainer) {
+                    qContainer.querySelectorAll('input[type="radio"]').forEach(radio => radio.disabled = true);
+                    const checkButton = qContainer.querySelector('.check-button');
+                    if (checkButton) checkButton.disabled = true;
+                }
+            }
+
+            scoreDisplay.textContent = `You scored ${score} out of ${totalQuestions}!`;
+            quizForm.style.display = 'none';
+            questionCounter.style.display = 'none';
+            resultsDiv.style.display = 'block';
+        }
+
+        function retakeQuiz() {
+            currentQuestionIndex = 1;
+            quizForm.reset(); // Clear all radio selections
+            resultsDiv.style.display = 'none';
+            quizForm.style.display = 'flex'; // Change to flex to match container styling
+            questionCounter.style.display = 'block';
+
+            // Clear stored answers and status
+            for (const key in userAnswers) {
+                delete userAnswers[key];
+            }
+            for (const key in questionStatus) {
+                delete questionStatus[key];
+            }
+
+            // Re-enable all radios and clear feedback
+            questionContainers.forEach((container, index) => {
+                const qNum = index + 1;
+                const radios = container.querySelectorAll('input[type="radio"]');
+                radios.forEach(radio => radio.disabled = false);
+                const feedbackElement = document.getElementById(`feedback${qNum}`);
+                if (feedbackElement) {
+                    feedbackElement.textContent = '';
+                    feedbackElement.className = 'feedback';
+                }
+                const hintElement = document.getElementById(`hint${qNum}`);
+                if (hintElement) hintElement.style.display = 'none';
+                const checkButton = container.querySelector('.check-button');
+                if (checkButton) checkButton.disabled = false;
+            });
+
+            showQuestion(currentQuestionIndex);
+        }
+
+        // Event Listeners
+        prevBtn.addEventListener('click', () => {
+            if (currentQuestionIndex > 1) {
+                currentQuestionIndex--;
+                showQuestion(currentQuestionIndex);
+            }
+        });
+
+        nextBtn.addEventListener('click', () => {
+            if (currentQuestionIndex < totalQuestions) {
+                currentQuestionIndex++;
+                showQuestion(currentQuestionIndex);
+            }
+        });
+
+        finalSubmitBtn.addEventListener('click', submitQuiz);
+        retakeBtn.addEventListener('click', retakeQuiz);
+
+        // Initial load
+        window.onload = () => {
+            addCopyrightNotice(); // Add copyright notices when the page loads
+            showQuestion(currentQuestionIndex);
+        };
+    </script>
+</body>
+</html>
